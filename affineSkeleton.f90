@@ -2,15 +2,25 @@ program affineScaling
     implicit none
     ! Setup: Take input A, b, c, step size, tolerance ε, and initial guess x0>0
     real, dimension(:,:), allocatable :: A ! switch cases?
-    real, dimension(:), allocatable :: b
-    real, dimension(:) allocatable, :: c
-    real, dimension(:), allocatable :: x0
-    real :: stepSize, tolerance ! user input?
+    real, dimension(:,:), allocatable :: b
+    real, dimension(:,:) allocatable, :: c
+    real, dimension(:,:), allocatable :: x0
+    real :: stepSize, tolerance, start end ! user input?
     integer :: i
 
     ! to start we can test with hard coding, maybe one from a known reference
+    ! using 7.1 from [6]
+    allocate(A(2,4))
+    allocate(b(1,2))
+    allocate(c(1,4))
+    allocate(x0(1,4))
+    A = reshape([1 -1 1 0 0 1 0 1],[2,4])
+    b = reshape([15 15], [1,2])
+    c = reshape([-2 1 0 0],[1,4])
+    x0 = reshape([10 2 7 13],[1,4])
 
     xk = x0
+    call cpu_time(start)
     do i = 1,100 ! can change this later
         ! Step 1: Start an an interior feasible point
         vk = b - A*xk
@@ -44,6 +54,7 @@ program affineScaling
             stop
         end if
     end do
+    call cpu_time(finish)
 
     contains
         function diag(xk)
@@ -70,7 +81,7 @@ program affineScaling
 
         function computeTranslation(xk, stepSize, D, r)
             implicit none
-            ! compute this
+            computeTranslation = xk - stepSize*(D**2)*r/norm2((D**2)*r)
         end function
 
         function inverse(A,D)
