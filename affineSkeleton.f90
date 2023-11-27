@@ -37,7 +37,7 @@ program affineScaling
         end if
 
         ! Step 3: Compute steepest-descent direction
-        d = computeSteepestDescentDirection(D, r)
+        call computeSteepestDescentDirection(D, r, d)
 
         ! Step 4: Check for unbounded and constant objective value
         if (condition) then 
@@ -90,9 +90,15 @@ program affineScaling
             write(*, *) r
         end subroutine computeVectorOfReducedCosts
 
-        function computeSteepestDescentDirection(D, r)
+        function computeSteepestDescentDirection(D, r, d)
             implicit none
-            ! compute this
+            real, dimension(:,:), intent(in) :: D
+            real, dimension(:), intent(in) :: r
+            real, dimension(:), intent(out) :: d
+        
+            d = -D * r
+
+            write(*,*)"Steepest-descent direction: ", d
         end function
 
         function computeTranslation(xk, stepSize, D, r)
