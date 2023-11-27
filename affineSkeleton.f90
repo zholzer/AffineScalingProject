@@ -7,6 +7,7 @@ program affineScaling
     real, dimension(:,:), allocatable :: x0
     real :: stepSize, tolerance, start end ! user input?
     integer :: i
+    logical :: condition1, condition2
 
     ! to start we can test with hard coding, maybe one from a known reference
     ! using 7.1 from [6]
@@ -39,13 +40,20 @@ program affineScaling
         ! Step 3: Compute steepest-descent direction
         call computeSteepestDescentDirection(D, r, d)
 
+        ! get the conditions
+        condition1 = (d > 0)
+        condition2 = (d == 0)
+
         ! Step 4: Check for unbounded and constant objective value
-        if (condition) then 
-            write(unbounded)
+        if (condition1) then 
+            write(*,*)"This problem is unbounded"
             stop
-        else if (condition) then 
-            write(xk)
+        else if (condition2) then 
+            write(*,*)"Primal Optimal value: ",xk
+            stop
         end if
+
+        ! ^ if the above conditions are unsatisfied, go to the next step
 
         ! Step 5: Perform the translation
         xk = computeTranslation(xk, stepSize, D, r)
