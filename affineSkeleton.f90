@@ -24,12 +24,12 @@ program affineScaling
     do i = 1,100 ! can change this later
         ! Step 1: Start an an interior feasible point
         vk = b - A*xk
-        D = diag(vk) ! probably need to code this too
+        D = diag(vk,size(vk)) ! probably need to code this too
         ! Step 2: Transform to new space using affine-scaling
         ! 2a. Compute vector of dual estimates
         w = computeVectorOfDualEstimates(A,D,c)
         ! 2b. Compute vector of reduced costs
-        r = computeVectorOfReducedCosts(c, A, w)
+        call computeVectorOfReducedCosts(A, c, w, r)
         ! 2c. Step 4: Check optimality
         if (conditions) then 
             write(xk, wk) 
@@ -57,9 +57,15 @@ program affineScaling
     call cpu_time(finish)
 
     contains
-        function diag(xk)
+        function diag(v,n) result(D)
             implicit none
-            ! puts elements of vector xk in diagonal of n by n matrix, rest 0's
+            integer :: n
+            real, intent(in) :: v(:)
+            real :: D(n,n)
+            integer :: i
+            do i = 1, n
+                D(i,i) = v(i)
+            end do
         end function
 
         function computeVectorOfDualEstimates(A,D,c)
@@ -69,10 +75,20 @@ program affineScaling
             stuffInverse = inverse(A, D)
         end function
 
-        function computeVectorOfReducedCosts(c, A, w)
+        subroutine computeVectorOfReducedCosts(A, c, w,r)
             implicit none
-            ! compute this
-        end function
+            real, dimension(:,:), intent(in) :: A
+            real, dimension(:), intent(in) :: c
+            real, dimension(:), intent(in) :: w
+            real, dimension(size(TRANSPOSE(A), 1)), intent(out) :: r
+    
+            r = c - MATMUL(TRANSPOSE(A), w)
+            !TRANPOSE A 4 x 2
+            !w 2 x 1
+            !c 4 x 1 
+            write(*, *) 'Result vector r:'
+            write(*, *) r
+        end subroutine computeVectorOfReducedCosts
 
         function computeSteepestDescentDirection(D, r)
             implicit none
