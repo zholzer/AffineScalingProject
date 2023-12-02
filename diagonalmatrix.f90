@@ -31,15 +31,16 @@ program main
                 D(i,i) = v(i)
             end do
           end function
-
-        integer function displayMatrix(D, n, m)
+          
+        integer function displayMatrix(D, m, n)
             implicit none
             integer, intent(in) :: n, m
-            integer :: i;
-            real, dimension(n,m) :: D
-            do i = 1,m
-                write(*, '(5F6.2)') D(:,i)
+            integer :: i, j  
+            real, dimension(:,:) :: D
+            do i = 1, m 
+                write(*, '(F8.2," ")') (D(i,j), j = 1, n) 
             end do
             displayMatrix = 1
         end function displayMatrix
+        
 end program main
