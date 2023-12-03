@@ -41,49 +41,49 @@ program affineScaling
         call computeVectorOfReducedCosts(A, c, w, r)
         ! 2c. Check optimality
         
-        posR = .false.
+        posR = .true.
 
         do j = 1,size(r)
-            if (r(j,1) < 0) then
+            if (r(j,1) > 0) then
                 continue
             else
-                posR = .true.
+                posR = .false.
             end if
         end do
 
         temp = MATMUL(oneVec,MATMUL(D,r))
-        !if ((posR .and. (temp(1,1)) < tolerance)) then 
-           ! write(*, *) xk 
-           ! stop
-       ! end if
+        if ((posR .and. (temp(1,1)) < tolerance)) then ! doesnt work
+            write(*, *) xk 
+            stop
+        end if
 
         ! Step 3: Compute steepest-descent direction
         call computeSteepestDescentDirection(D, r, dk)
         ! get the conditions
-        posdk = .false.;
+        posdk = .true.;
 
         do j = 1,size(dk)
-            if (dk(j,1) > 0) then
+            if (dk(j,1) < 0) then
                 continue
             else
-                posdk = .true.
+                posdk = .false.
             end if
         end do
 
-        zerodk = .false.;
+        zerodk = .true.;
         do j = 1,size(dk)
-            if (dk(j,1) .ne. 0) then
+            if (dk(j,1) .eq. 0) then
                 continue
             else
-                zerodk = .true.
+                zerodk = .false.
             end if
         end do
        
         ! Step 4: Check for unbounded and constant objective value
-        !if (posdk) then 
-            !write(*,*)"This problem is unbounded"
-           ! stop
-         if (zerodk) then 
+        if (posdk) then 
+            write(*,*)"This problem is unbounded"
+            stop
+        else if (zerodk) then 
             write(*,*)"Primal Optimal value: ",xk
             stop
         end if
@@ -93,7 +93,7 @@ program affineScaling
         ! Step 5: Perform the translation
         call computeTranslation(xk, stepSize, D)
         if (i == 100) then
-            write(*,*) "Primal Optimal value: ",xk
+            write(*,*) "100 iterations reached. Primal Optimal value: ",xk
             stop
         end if
     end do
@@ -209,4 +209,4 @@ program affineScaling
 
 end program affineScaling
 
-! use slides and reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdf
+! use slides and reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdfs/9/2019/10/chapter7.pdf
