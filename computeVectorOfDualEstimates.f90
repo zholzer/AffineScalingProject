@@ -3,9 +3,9 @@ program main
     real, dimension(2,4) :: A
     real, dimension(4,1) :: c
     real, dimension(:), allocatable :: x0
-    real, dimension(2,4) :: H
-    real, dimension(2,2) :: F
-    real, dimension(2,1)  :: g
+    real, dimension(:,:), allocatable :: H
+    real, dimension(:,:), allocatable :: F
+    real, dimension(:,:), allocatable  :: g
     real, dimension(:), allocatable  :: b
     real, dimension(:,:), allocatable :: D
     real, dimension(:), allocatable :: w
@@ -13,7 +13,7 @@ program main
     n = 4
     allocate(x0(n))
     allocate(D(n,n))
-    allocate(b(2))
+    allocate(b(size(A,1)))
     !allocate(w(2))
 
     A = reshape([1.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0], [2, 4]) 
