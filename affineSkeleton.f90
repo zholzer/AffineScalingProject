@@ -9,21 +9,22 @@ program affineScaling
 
     ! to start we can test with hard coding, maybe one from a known reference
     ! using 7.1 from [6]
-    tolerance = .00001
+    tolerance = .0001
+    stepSize = .1
     allocate(A(2,4))
     allocate(b(1,2))
     allocate(c(4,1))
     allocate(xk(4,1))
-    A = reshape([1, -1, 1, 0, 0, 1, 0, 1],[2,4])
-    b = reshape([15, 15], [1,2])
-    c = reshape([-2, 1, 0, 0], [4,1])
-    xk = reshape([10, 2, 7, 13], [4,1])
+    A = reshape([1.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0], [2, 4]) 
+    b = reshape([15.0, 15.0], [1,2])
+    c = reshape([-2.0, 1.0, 0.0, 0.0],[4,1])
+    xk = reshape([10.0, 2.0, 7.0, 13.0],[4,1])
 
     allocate(D(size(xk),size(xk)))
     allocate(dk(size(xk),1))
     allocate(r(size(xk),1))
     allocate(vk(size(xk),1))
-    allocate(w(size(xk),1))
+    allocate(w(size(A, dim=1),1))
     allocate(oneVec(1,size(A, dim=2)))
 
     call cpu_time(start)
@@ -31,9 +32,11 @@ program affineScaling
         ! Step 1: Start an an interior feasible point
         !vk = b - A*xk
         D = diagonalMatrix(xk,size(xk)) 
+        
         ! Step 2: Transform to new space using affine-scaling
         ! 2a. Compute vector of dual estimates
         call computeVectorOfDualEstimates(A, D, c, w)
+       
         ! 2b. Compute vector of reduced costs
         call computeVectorOfReducedCosts(A, c, w, r)
         ! 2c. Check optimality
@@ -49,14 +52,13 @@ program affineScaling
         end do
 
         temp = MATMUL(oneVec,MATMUL(D,r))
-        if ((posR .and. (temp(1,1)) < tolerance)) then 
-            write(*, *) xk 
-            stop
-        end if
+        !if ((posR .and. (temp(1,1)) < tolerance)) then 
+           ! write(*, *) xk 
+           ! stop
+       ! end if
 
         ! Step 3: Compute steepest-descent direction
         call computeSteepestDescentDirection(D, r, dk)
-
         ! get the conditions
         posdk = .false.;
 
@@ -76,12 +78,12 @@ program affineScaling
                 zerodk = .true.
             end if
         end do
-
+       
         ! Step 4: Check for unbounded and constant objective value
-        if (posdk) then 
-            write(*,*)"This problem is unbounded"
-            stop
-        else if (zerodk) then 
+        !if (posdk) then 
+            !write(*,*)"This problem is unbounded"
+           ! stop
+         if (zerodk) then 
             write(*,*)"Primal Optimal value: ",xk
             stop
         end if
@@ -89,9 +91,9 @@ program affineScaling
         ! ^ if the above conditions are unsatisfied, go to the next step
 
         ! Step 5: Perform the translation
-        call computeTranslation(xk, stepSize, D, r)
+        call computeTranslation(xk, stepSize, D)
         if (i == 100) then
-            write(*,*) 'To many iterations. Program will be terminated.'
+            write(*,*) "Primal Optimal value: ",xk
             stop
         end if
     end do
@@ -119,7 +121,6 @@ program affineScaling
             
             H = MATMUL(A, D)
             F = MATMUL(H, TRANSPOSE(H))
-            !write(*,*) F
             bInv = MATMUL(H, MATMUL(D, c))
             w = conjugateGradient(F,bInv)
         end subroutine computeVectorOfDualEstimates
@@ -131,7 +132,7 @@ program affineScaling
             real, dimension(:,:), intent(in) :: w
             real, dimension(size(A), 1), intent(out) :: r
             
-            r = c - MATMUL(A, w)
+            r = c - MATMUL(transpose(A), w)
 
         end subroutine computeVectorOfReducedCosts
 
@@ -141,18 +142,17 @@ program affineScaling
             real, dimension(:,:), intent(in) :: r
             real, dimension(:,:), intent(out) :: dk
         
-            dk = -D * r
+            dk = MATMUL(-1*D, r)
 
         end subroutine computeSteepestDescentDirection
 
-        subroutine computeTranslation(xk, stepSize, D, r)
+        subroutine computeTranslation(xk, stepSize, D)
             implicit none
             real, dimension(:,:), intent(inout) :: xk
             real, intent(in) :: stepSize
             real, dimension(:,:), intent(in) :: D
-            real, dimension(:,:), intent(in) :: r
 
-            xk = xk- stepSize*(D**2)*r/norm2((D**2)*r)
+            xk = xk + stepSize*MATMUL(D,dk)
 
         end subroutine computeTranslation
 
@@ -162,40 +162,38 @@ program affineScaling
             real, intent(in) :: v(:,:)
             real :: D(n,n)
             integer :: i
+            D = 0.0
             do i = 1, n
                 D(i,i) = v(i,1)
             end do
         end function
 
-        function conjugateGradient(F, b) result(w)
+        function conjugateGradient(F, b) result(wFinal)
             implicit none
             real, intent(in) :: F(:,:)
             real, intent(in) :: b(:,:)
-            real, dimension(size(b),1) :: w0, w, r , p, Ap
+            real, dimension(size(b)) :: w, r , p, Ap
             real(4) :: tol, max_iter, alpha, beta
+            real, dimension(size(w),1) :: wFinal
             integer :: i
-
             tol = 1.0E-6
             max_iter = 100
-            w0 = 0.0
-           ! do i = 1, size(b,1)
-               ! w0(i) = 0.0
-           ! end do 
+            w = 0.0
           
-            w = w0
-            r = b - MATMUL(F, w)
+            r = reshape(b, [size(b)]) - MATMUL(F, w)
             p = r
             i = 0
-  
+            
             do while (i < max_iter .and. maxval(abs(r)) > tol)
                 Ap = MATMUL(F, p)
-                alpha = dot_product(reshape(r, [1]), reshape(r, [1])) / dot_product(reshape(p, [1]), reshape(Ap, [1]))
+                alpha = dot_product(r, r) / dot_product(p, Ap)
                 w = w + alpha * p
                 r = r - alpha * Ap
-                beta = dot_product(reshape(r, [1]), reshape(r, [1])) / dot_product(reshape(p, [1]), reshape(Ap, [1]))
+                beta = dot_product(r, r) / dot_product(p, Ap)
                 p = r + beta * p
                 i = i + 1
             end do
+            wFinal = reshape(w, [size(w),1])
         end function conjugateGradient
 
         integer function displayMatrix(D, m, n)
