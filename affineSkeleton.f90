@@ -4,7 +4,7 @@ program affineScaling
     real, dimension(:,:), allocatable :: A, b, D, oneVec, c, xk, dk, r, vk, w ! switch cases?
     real :: stepSize, tolerance, start, finish ! user input?
     real, dimension(1,1) :: temp
-    integer :: i,j
+    integer :: i,j, itNum
     logical :: posdk, zerodk, posR
 
     ! to start we can test with hard coding, maybe one from a known reference
@@ -28,7 +28,8 @@ program affineScaling
     allocate(oneVec(1,size(A, dim=2)))
 
     call cpu_time(start)
-    do i = 1,100 ! can change this later
+    itNum = 10000
+    do i = 1,itNum ! can change this later
         ! Step 1: Start an an interior feasible point
         !vk = b - A*xk
         D = diagonalMatrix(xk,size(xk)) 
@@ -92,12 +93,13 @@ program affineScaling
 
         ! Step 5: Perform the translation
         call computeTranslation(xk, stepSize, D)
-        if (i == 100) then
-            write(*,*) "100 iterations reached. Primal Optimal value: ",xk
+        if (i == itNum) then
+            write(*,*) "Primal Optimal value: ",xk
+            call cpu_time(finish)
+            write(*,*) finish, ' with ', itNum, ' iterations'
             stop
         end if
     end do
-    call cpu_time(finish)
 
     deallocate(A)
     deallocate(b)
@@ -209,4 +211,4 @@ program affineScaling
 
 end program affineScaling
 
-! use slides and reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdfs/9/2019/10/chapter7.pdf
+! use slides and reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdf
