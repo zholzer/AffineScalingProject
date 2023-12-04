@@ -35,7 +35,7 @@ program affineScaling
             c = reshape([-0.8, -0.1, .2, 1.9],[4,1])
             xk = reshape([1, 1, 1, 1],[4,1])
             ! answer is (1 2 0 0)
-        
+        ! https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
         case ('C')
             allocate(A(2,4))
             allocate(b(1,2))
@@ -45,6 +45,7 @@ program affineScaling
             b = reshape([40.0, 60.0], [2,1])
             c = reshape([1.0, -2.0, 0.0, 0.0],[4,1])
             xk = reshape([15.0, 15.0, 10.0, 15.0],[4,1])
+            ! Do not know the answer
         !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
 
         case ('D')
