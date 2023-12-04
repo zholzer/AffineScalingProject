@@ -4,21 +4,116 @@ program affineScaling
     real, dimension(:,:), allocatable :: A, b, D, oneVec, c, xk, dk, r, vk, w ! switch cases?
     real :: stepSize, tolerance, start, finish ! user input?
     real, dimension(1,1) :: temp
-    integer :: i,j, itNum
+    integer :: i,j, itNum, stat
     logical :: posdk, zerodk, posR
+    character :: testChoice
 
     ! to start we can test with hard coding, maybe one from a known reference
     ! using 7.1 from [6]
-    tolerance = .0001
-    stepSize = .1
-    allocate(A(2,4))
-    allocate(b(1,2))
-    allocate(c(4,1))
-    allocate(xk(4,1))
-    A = reshape([1.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0], [2, 4]) 
-    b = reshape([15.0, 15.0], [1,2])
-    c = reshape([-2.0, 1.0, 0.0, 0.0],[4,1])
-    xk = reshape([10.0, 2.0, 7.0, 13.0],[4,1])
+    write(*,*) 'Please enter a test case as "A", "B", "C", "D", or "E": '
+    read(*,*, iostat=stat) testChoice
+
+ 1   select case (testChoice)
+        case ('A')
+            allocate(A(2,4))
+            allocate(b(1,2))
+            allocate(c(4,1))
+            allocate(xk(4,1))
+            A = reshape([1.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0], [2, 4]) 
+            b = reshape([15.0, 15.0], [1,2])
+            c = reshape([-2.0, 1.0, 0.0, 0.0],[4,1])
+            xk = reshape([10.0, 2.0, 7.0, 13.0],[4,1])
+            ! answer is (35 15 0 0)
+
+        case ('B')
+            allocate(A(2,4))
+            allocate(b(1,2))
+            allocate(c(4,1))
+            allocate(xk(4,1))
+            A = reshape([1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0], [2, 4]) 
+            b = reshape([1.0, 2.0], [1,2])
+            c = reshape([-1.0, -1.0, 1.0, 1.0],[4,1])
+            xk = reshape([1.0, 2.0, 0.0, 0.0],[4,1])
+            ! answer is (1 2 0 0)
+
+        case ('C')
+            allocate(A(10,10))
+            allocate(b(1,10))
+            allocate(c(10,1))
+            allocate(xk(10,1))
+            A = reshape([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, & 
+                0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, 0.0, 6.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 9.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0], &    
+                [10, 10]) 
+                b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1,10])
+                c = reshape([1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[10,1])
+                xk = reshape([1.0, 1.0/2.0, 1.0/3.0, 1.0/4.0, 1.0/5.0, 1.0/6.0, 1.0/7.0, 1.0/8.0, 1.0/9.0, 1.0/10.0],[10,1])
+            ! answer is (1 0 ... 0), telescoping
+
+        case ('D')
+            allocate(A(8,3))
+            allocate(b(8,1))
+            allocate(c(3,1))
+            allocate(xk(3,1))
+            A = reshape([0.0, 1.0, 0.0, & 
+                1.0, 0.0, -1.0, &
+                0.0, 1.0, 0.0, &
+                1.0, 0.0, -1.0, &
+                0.0, 1.0, 0.0, &
+                1.0, 0.0, -1.0, &
+                0.0, 1.0, 0.0, &
+                1.0, 0.0, -1.0], & 
+                [8, 3]) 
+            b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [8,1])
+            c = reshape([1.0, 1.0, 1.0],[3,1])
+            xk = reshape([2.0, 1.0, 5.0],[3,1])
+            ! answer is (2 1 1)???
+
+        case ('E')
+            allocate(A(10,10))
+            allocate(b(1,10))
+            allocate(c(10,1))
+            allocate(xk(10,1))
+            A = reshape([1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, & 
+                -1.0, 2.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, -1.0, 3.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, -1.0, 4.0, -1.0, 0.0, 0.0, 0.0, 3.0, 0.0, &
+                0.0, 0.0, 0.0, -1.0, 5.0, -1.0, 0.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 0.0, -1.0, 6.0, -1.0, 0.0, 0.0, 0.0, &
+                0.0, 0.0, 8.0, 0.0, 0.0, -1.0, 7.0, -1.0, 0.0, 0.0, &
+                0.0, 0.0, 0.0, 7.0, 0.0, 0.0, -1.0, 8.0, -1.0, -2.0, &
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 9.0, -1.0, &
+                1.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, -1.0, 10.0], &    
+                [10, 10]) 
+            b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1,10])
+            c = reshape([1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],[10,1])
+            xk = reshape([1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10],[10,1])
+
+        case default
+            write(*,*) 'Please enter a valid test case selection.'
+            write(*,*) 'Please enter a test case as "A", "B", "C", "D", or "E": '
+            read(*,*, iostat=stat) testChoice
+            go to 1
+
+    end select
+    
+    write(*,*) 'Please enter a step size between 0 and 1 exclusive (reccomended value is .1): '
+    read(*,*, iostat=stat) stepSize
+    
+    do while ((stat .ne. 0) .or. (stepSize <= 0) .or. (stepSize >= 1))      
+        write(*,*) 'Please input a number from 0 to 1 exclusive. Retry.'
+        write(*,*) 'Please enter a step size between 0 and 1 (reccomended value is .1): '
+        read(*,*, iostat=stat) stepSize
+    end do
+
+    tolerance = .00001
 
     allocate(D(size(xk),size(xk)))
     allocate(dk(size(xk),1))
@@ -54,7 +149,9 @@ program affineScaling
 
         temp = MATMUL(oneVec,MATMUL(D,r))
         if ((posR .and. (temp(1,1)) < tolerance)) then ! doesnt work
-            write(*, *) xk 
+            write(*, *) 'Primal optimal value: ', xk 
+            call cpu_time(finish)
+            write(*,*) 'Code took ', finish, 'seconds with ', i, ' iterations.'
             stop
         end if
 
@@ -86,6 +183,8 @@ program affineScaling
             stop
         else if (zerodk) then 
             write(*,*)"Primal Optimal value: ",xk
+            call cpu_time(finish)
+            write(*,*) 'Code took ', finish, 'seconds with ', i, ' iterations.'
             stop
         end if
 
@@ -94,9 +193,9 @@ program affineScaling
         ! Step 5: Perform the translation
         call computeTranslation(xk, stepSize, D)
         if (i == itNum) then
-            write(*,*) "Primal Optimal value: ",xk
+            write(*,*) "Primal Optimal value: ", xk
             call cpu_time(finish)
-            write(*,*) finish, ' with ', itNum, ' iterations'
+            write(*,*) 'Code took ', finish, 'seconds with ', itNum, ' iterations.'
             stop
         end if
     end do
