@@ -30,22 +30,24 @@ program affineScaling
             allocate(b(1,2))
             allocate(c(4,1))
             allocate(xk(4,1))
-            A = reshape([0.8, 0.0, .2, 0.0, 0.0, .1, 0.0, 1.9], [2, 4]) 
-            b = reshape([1.0, 2.0], [2,1])
-            c = reshape([-0.8, -0.1, .2, 1.9],[4,1])
-            xk = reshape([1, 1, 1, 1],[4,1])
+            A = reshape([1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0], [2, 4]) 
+            b = reshape([1.0, 2.0], [1,2])
+            c = reshape([-1.0, -1.0, 2.0, 1.0],[4,1])
+            xk = reshape([0.9, 1.9, 0.1, 0.1],[4,1])
             ! answer is (1 2 0 0)
         ! https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
+        
         case ('C')
             allocate(A(2,4))
             allocate(b(1,2))
             allocate(c(4,1))
             allocate(xk(4,1))
             A = reshape([1.0, 1.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0], [2, 4]) 
-            b = reshape([40.0, 60.0], [2,1])
+            b = reshape([40.0, 60.0], [1,2])
             c = reshape([1.0, -2.0, 0.0, 0.0],[4,1])
-            xk = reshape([15.0, 15.0, 10.0, 15.0],[4,1])
-            ! Do not know the answer
+            xk = reshape([20.0, 10.0, 10.0, 10.0],[4,1])
+            !Answer is (0 40 0 20) maybe?
+            ! Getting 0 50 0 40 
         !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
 
         case ('D')
@@ -56,7 +58,7 @@ program affineScaling
             A = reshape([1.0, 2.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0], [2, 4]) 
             b = reshape([3.0, 3.0], [2,1])
             c = reshape([-1.0, -1.0, 2.44, 1.97],[4,1])
-            xk = reshape([.5, .03, 0.0, 0.0],[4,1])
+            xk = reshape([0.5, 0.03, 0.0, 0.0],[4,1])
         !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
 
         case ('E')
@@ -102,24 +104,28 @@ program affineScaling
             xk = reshape([1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10],[10,1])
 
         case ('G')
-            allocate(A(2,4))
-            allocate(b(1,2))
-            allocate(c(4,1))
-            allocate(xk(4,1))
-            A = reshape([1.0, 4.0, 3.0, 1.0, 1.0, 1.0], [3, 2]) 
+            allocate(A(3,3))
+            allocate(b(1,3))
+            allocate(c(3,1))
+            allocate(xk(3,1))
+            A = reshape([1.0, 4.0, 1.0, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0], [3, 3]) 
             b = reshape([24.0, 21.0, 9.0], [1,3])
-            c = reshape([2.0, 5.0],[2,1])
-            xk = reshape([.1, .1],[2,1])
-
+            c = reshape([2.0, 5.0, 0.0],[3,1])
+            xk = reshape([6.0, 1.0, 0.0],[3,1])
+            ! Cannot do this cause the orginal problem is less than or equal
+        ! https://www.cuemath.com/algebra/linear-programming/
+        
         case ('H')
-            allocate(A(2,2))
+            allocate(A(2,3))
             allocate(b(1,2))
             allocate(c(2,1))
-            allocate(xk(2,1))
-            A = reshape([1.0, 1.0, 1.0, 0.0], [2, 2]) 
+            allocate(xk(3,1))
+            A = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 0.0], [2, 3]) 
             b = reshape([2.0, 1.0], [1,2])
-            c = reshape([-3.0, -1.0],[2,1])
-            xk = reshape([.6, .6],[2,1])
+            c = reshape([-3.0, -1.0, 0.0],[3,1])
+            xk = reshape([1.0, 0.4, 1.0],[3,1])
+            ! ! Cannot do this cause the orginal problem is less than or equal 
+        !   https://www.youtube.com/watch?v=ZU1kpRE84U0
 
         case default
             write(*,*) 'Please enter a valid test case selection.'
