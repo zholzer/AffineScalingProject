@@ -24,7 +24,6 @@ program affineScaling
             c = reshape([-2.0, 1.0, 0.0, 0.0],[4,1])
             xk = reshape([10.0, 2.0, 7.0, 13.0],[4,1])
             ! answer is (30 15 0 0)
-            ! reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdf
 
         case ('B')
             allocate(A(2,4))
@@ -36,7 +35,7 @@ program affineScaling
             c = reshape([-1.0, -1.0, 2.0, 1.0],[4,1])
             xk = reshape([0.9, 1.9, 0.1, 0.1],[4,1])
             ! answer is (1 2 0 0)
-            ! reference https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
+        ! https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
         
         case ('C')
             allocate(A(2,4))
@@ -46,9 +45,8 @@ program affineScaling
             A = reshape([1.0, 1.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0], [2, 4]) 
             b = reshape([40.0, 60.0], [1,2])
             c = reshape([1.0, -2.0, 0.0, 0.0],[4,1])
-            xk = reshape([15.0, 15.0, 10.0, 15.0],[4,1])
+            xk = reshape([20.0, 10.0, 10.0, 10.0],[4,1])
             !Answer is (0 40 0 20) maybe?
-            ! Getting 0 50 0 40 
         !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
 
         case ('D')
@@ -59,10 +57,8 @@ program affineScaling
             A = reshape([1.0, 2.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0], [2, 4]) 
             b = reshape([3.0, 3.0], [2,1])
             c = reshape([-1.0, -1.0, 0.0, 0.0],[4,1])
-            xk = reshape([0.5, 0.03, 2.44, 1.97],[4,1])
-            ! answer is? (1 1 ? ?), beta = .5
-            ! getting (2.7 2.7 0 0)???
-        ! reference https://juliabook.chkwon.net/book/interior
+            xk = reshape([0.9, 0.9, 0.3, 0.3],[4,1])
+        !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
 
         case ('E')
             allocate(A(10,10))
@@ -80,11 +76,10 @@ program affineScaling
                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 9.0, 0.0, &
                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0], &    
                 [10, 10]) 
-                b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [10,1])
+                b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1,10])
                 c = reshape([1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[10,1])
                 xk = reshape([1.0, .4, .2, .1, .1, .1, .1, .05, .05, .01],[10,1]) 
             ! answer is (1 0 ... 0), telescoping
-            ! trivial example 
 
 
         case ('F')
@@ -106,7 +101,7 @@ program affineScaling
             b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1,10])
             c = reshape([1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],[10,1])
             xk = reshape([1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10],[10,1])
-            ! adjustment of trivial problem
+
         case ('G')
             allocate(A(3,3))
             allocate(b(1,3))
@@ -148,7 +143,7 @@ program affineScaling
         read(*,*, iostat=stat) stepSize
     end do
 
-    tolerance = 10**(-9)
+    tolerance = 10.0**(-6)
 
     allocate(D(size(xk),size(xk)))
     allocate(dk(size(xk),1))
@@ -279,7 +274,7 @@ program affineScaling
             real, dimension(:,:), intent(in) :: r
             real, dimension(:,:), intent(out) :: dk
         
-            dk = -1*MATMUL(D, r)
+            dk = MATMUL(-1*D, r)
             !write(*,*) dk
         end subroutine computeSteepestDescentDirection
 
@@ -293,7 +288,7 @@ program affineScaling
             beta = stepSize/maxval(-dk)
             xk = xk + beta*MATMUL(D,dk)
             !write(*,*) beta
-            !xk = xk - beta*dk / norm2(MATMUL(D,r))
+            !xk = xk - stepSize*MATMUL(D**2,dk)/norm2(MATMUL(D,dk))
 
         end subroutine computeTranslation
 
