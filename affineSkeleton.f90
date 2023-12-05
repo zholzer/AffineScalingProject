@@ -9,7 +9,33 @@ program affineScaling
     character :: testChoice
 
     ! using 7.1 from https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdf
-    write(*,*) 'Welcome to the Affine Scaling Program. Descriptions of the cases can be found in the README.txt file.'
+    write(*,*) ''
+    write(*,*) 'Welcome to the Affine Scaling Program.'
+    write(*,*) ''
+    write(*,*) 'Case "A" solves the problem: '
+    write(*,*) 'Minimize -2x_1 + x_2'
+    write(*,*) 'Subject to conditions x_1 - x_2 <= 15, x_2 <= 15, and {x_1, x_2} >= 0'
+
+    write(*,*) ''
+    write(*,*) 'Case "B" solves the problem: '
+    write(*,*) 'Minimize -x_1 - x_2 + x_3 + x_4'
+    write(*,*) 'Subject to conditions x_1 + x_3 = 1, x_2 + x_4 = 2, and {x_1, x_2, x_3, x_4} >= 0'
+
+    write(*,*) ''
+    write(*,*) 'Case "C" solves the problem: '
+    write(*,*) 'Minimize x_1 - 2x_2'
+    write(*,*) 'Subject to conditions x_1 + x_2 <= 40, 2x_1 + x_2 <= 60, and {x_1, x_2} >= 0'
+
+    write(*,*) ''
+    write(*,*) 'Case "D" solves the problem: '
+    write(*,*) 'Minimize -x_1 - x_2'
+    write(*,*) 'Subject to conditions x_1 + 2x_2 <= 3, 2x_1 + x_2 <= 3, and {x_1, x_2} >= 0'
+
+    write(*,*) ''
+    write(*,*) 'Case "E" solves the problem: '
+    write(*,*) 'Minimize '
+    write(*,*) 'Subject to conditions x_1 + 2x_2 <= 3, 2x_1 + x_2 <= 3, and {x_1, x_2} >= 0'
+
     write(*,'(a)', advance = 'no') 'Please enter a test case as "A", "B", "C", "D", or "E":     '
     read(*,*, iostat=stat) testChoice
 
@@ -79,10 +105,10 @@ program affineScaling
                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0], &    
                 [10, 20]) 
                 b = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0], [1,10])
-                c = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, &
-                             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[20,1])
+                c = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 0.0, &
+                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[20,1])
                 xk = reshape([.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, &
-                              1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],[20,1])
+                              .5, .5, .5, .5, .5, .5, .5, .5, .5, .5],[20,1])
 
         case default ! if input is not valid, retry
             write(*,*) 'Please enter a valid test case selection.'
@@ -137,9 +163,13 @@ program affineScaling
         check = MATMUL(oneVec,MATMUL(D,r)) ! tolerence check  
 
         if ((posR .and. (check(1,1)) < tolerance)) then ! if true, primal optimal value has been found
-            write(*, *) 'Primal optimal value: ', xk 
+            write(*, *) 'Primal optimal value for xk: '
+            call displayMatrix(xk, size(xk), 1)
             call cpu_time(finish) ! end timer
-            write(*,*) 'Code took ', finish - start, 'and', i, ' iterations.'
+            write(*,*) 'Code took ', finish - start, 'seconds.'
+            write(*,'(a)', advance = 'no') 'Ended with '
+            write(*,'(i3)', advance = 'no') i
+            write(*,'(a)') ' iterations.'
             stop
         end if
 
@@ -169,9 +199,13 @@ program affineScaling
             write(*,*)"This problem is unbounded"
             stop
         else if (zerodk) then ! if direction is close to 0, primal optimal value has been found
-            write(*,*)"Primal Optimal value: ",xk
+            write(*,*) "Primal Optimal value xk: "
+            call displayMatrix(xk, size(xk), 1)
             call cpu_time(finish)
-            write(*,*) 'Code took ', finish - start, 'and', i, ' iterations.'
+            write(*,*) 'Code took ', finish - start, 'seconds.'
+            write(*,'(a)', advance = 'no') 'Ended with '
+            write(*,'(i3)', advance = 'no') i
+            write(*,'(a)') ' iterations.'
             stop
         end if
         ! ^ if the above conditions are unsatisfied, go to the next step
@@ -180,10 +214,11 @@ program affineScaling
         call computeTranslation(xk, stepSize, dk, D)
 
         if (i == itNum) then ! if maximum iterations are reached, print xk
-            write(*,*) "xk is: ", xk
+            write(*,*) "xk is: " 
+            call displayMatrix(xk, size(xk), 1)
             call cpu_time(finish)
-            write(*,*) 'Code took ', finish - start, 'and', i, ' iterations.'
-            write(*,*) ' iterations. The maximum iteration number was reached.'
+            write(*,*) 'Code took ', finish - start, 'seconds.'
+            write(*,'(a)') 'Ended with 100 iterations.'
             stop
         end if
     end do 
@@ -289,4 +324,14 @@ program affineScaling
                 D(i,i) = v(i,1)
             end do
         end function
+        ! displays a matrix
+        subroutine displayMatrix(D, m, n)
+            implicit none
+            integer, intent(in) :: n, m
+            integer :: i, j  
+            real, dimension(:,:) :: D
+            do i = 1, m 
+                write(*, '(F8.2," ")') (D(i,j), j = 1, n) 
+            end do
+        end subroutine displayMatrix
 end program affineScaling
