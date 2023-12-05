@@ -33,7 +33,7 @@ program affineScaling
             allocate(xk(4,1))
             A = reshape([1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0], [2, 4]) 
             b = reshape([1.0, 2.0], [1,2])
-            c = reshape([-1.0, -1.0, 2.0, 1.0],[4,1])
+            c = reshape([-1.0, -1.0, 1.0, 1.0],[4,1])
             xk = reshape([0.9, 1.9, 0.1, 0.1],[4,1])
             ! answer is (1 2 0 0)
         ! reference https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
