@@ -209,14 +209,14 @@ program affineScaling
             real, dimension(size(A, dim=1),1) :: bInv
             real, dimension(size(A, dim=1),1), intent(out) :: w
             ! computes (AD(AD)^T)w = AD^2c for w 
-            H = MATMUL(A, D)
-            F = MATMUL(H, TRANSPOSE(H))
-            bInv = MATMUL(H, MATMUL(D, c))
-            w = conjugateGradient(F,bInv) ! uses the conjugate gradient numerical system solver
+            H = MATMUL(A, D) !H = A*D
+            F = MATMUL(H, TRANSPOSE(H)) !F = (AD*(AD)^T)
+            bInv = MATMUL(H, MATMUL(D, c)) !bInv = A*(D^2)*c
+            w = conjugateGradient(F,bInv) ! uses the conjugate gradient numerical system solver F x = bInv
         end subroutine computeVectorOfDualEstimates
 
-        ! computes the conjugate gradient
-        function conjugateGradient(F, b) result(wFinal)
+        ! computes the conjugate gradient https://en.wikipedia.org/wiki/Conjugate_gradient_method
+        function conjugateGradient(F, b) result(wFinal) 
             implicit none
             real, intent(in) :: F(:,:)
             real, intent(in) :: b(:,:)
@@ -227,18 +227,18 @@ program affineScaling
             tol = 1.0E-6
             max_iter = 100
             w = 0.0
-          
-            r = reshape(b, [size(b)]) - MATMUL(F, w)
-            p = r
-            i = 0
-            
+            !initialize vairables
+            r = reshape(b, [size(b)]) - MATMUL(F, w) !residual r = b - F*w
+            p = r !inital search direction is the same as residual vector
+            i = 0 ! i-th step 
+            !keep looping until converage or reach the maximum of iterations
             do while (i < max_iter .and. maxval(abs(r)) > tol)
                 Ap = MATMUL(F, p)
                 alpha = dot_product(r, r) / dot_product(p, Ap)
-                w = w + alpha * p
-                r = r - alpha * Ap
+                w = w + alpha * p !update w
+                r = r - alpha * Ap !update residual vector r
                 beta = dot_product(r, r) / dot_product(p, Ap)
-                p = r + beta * p
+                p = r + beta * p !compute search direction
                 i = i + 1
             end do
             wFinal = reshape(w, [size(w),1])
