@@ -1,7 +1,7 @@
 program affineScaling
     implicit none
     ! Setup: Take input A, b, c, step size, tolerance ε, and initial guess x0>0
-    real, dimension(:,:), allocatable :: A, b, D, oneVec, c, xk, dk, r, vk, w 
+    real, dimension(:,:), allocatable :: A, b, D, oneVec, c, xk, dk, r, vk, w, answer 
     real :: stepSize, tolerance, start, finish
     real, dimension(1,1) :: check
     integer :: i,j, itNum, stat
@@ -33,9 +33,10 @@ program affineScaling
 
     write(*,*) ''
     write(*,*) 'Case "E" solves the problem: '
-    write(*,*) 'Minimize '
-    write(*,*) 'Subject to conditions x_1 + 2x_2 <= 3, 2x_1 + x_2 <= 3, and {x_1, x_2} >= 0'
+    write(*,*) 'Minimize x_1 + ... + x_{n-2} - x_{n-1}'
+    write(*,*) 'Subject to conditions x_i <= i and x_i >= 0 for i = {1,...,10}'
 
+    write(*,*) ''
     write(*,'(a)', advance = 'no') 'Please enter a test case as "A", "B", "C", "D", or "E":     '
     read(*,*, iostat=stat) testChoice
 
@@ -49,8 +50,14 @@ program affineScaling
             b = reshape([15.0, 15.0], [1,2])
             c = reshape([-2.0, 1.0, 0.0, 0.0],[4,1])
             xk = reshape([10.0, 2.0, 7.0, 13.0],[4,1])
-            ! answer is (30 15 0 0)
             ! reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdf
+
+            allocate(answer(4,1))
+            answer = reshape([30.0, 15.0, 0.0, 0.0], [4,1])
+            write(*,*) ''
+            write(*,*) 'The answer to case ', testChoice, ' is: ' 
+            call displayMatrix(answer, size(answer), 1)
+            deallocate(answer)
 
         case ('B')
             allocate(A(2,4))
@@ -61,8 +68,14 @@ program affineScaling
             b = reshape([1.0, 2.0], [1,2])
             c = reshape([-1.0, -1.0, 1.0, 1.0],[4,1])
             xk = reshape([0.9, 1.9, 0.1, 0.1],[4,1])
-            ! answer is (1 2 0 0)
+
         ! reference https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
+            allocate(answer(4,1))
+            answer = reshape([1.0, 2.0, 0.0, 0.0], [4,1])
+            write(*,*) ''
+            write(*,*) 'The answer to case ', testChoice, ' is: ' 
+            call displayMatrix(answer, size(answer), 1)
+            deallocate(answer)
         
         case ('C')
             allocate(A(2,4))
@@ -73,8 +86,14 @@ program affineScaling
             b = reshape([40.0, 60.0], [1,2])
             c = reshape([1.0, -2.0, 0.0, 0.0],[4,1])
             xk = reshape([8.0, 30.0, 2.0, 14.0],[4,1])
-            ! Answer is (0 40 0 20) 
         ! reference https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
+
+            allocate(answer(4,1))
+            answer = reshape([0.0, 40.0, 0.0, 20.0], [4,1])
+            write(*,*) ''
+            write(*,*) 'The answer to case ', testChoice, ' is: ' 
+            call displayMatrix(answer, size(answer), 1)
+            deallocate(answer)
 
         case ('D')
             allocate(A(2,4))
@@ -85,8 +104,14 @@ program affineScaling
             b = reshape([3.0, 3.0], [2,1])
             c = reshape([-1.0, -1.0, 0.0, 0.0],[4,1])
             xk = reshape([0.9, 0.9, 0.3, 0.3],[4,1])
-                 ! (1 1 ? ?), beta = .5
         ! reference https://juliabook.chkwon.net/book/interior
+
+            allocate(answer(4,1))
+            answer = reshape([1.0, 1.0, 0.0, 0.0], [4,1])
+            write(*,*) ''
+            write(*,*) 'The answer to case ', testChoice, ' is most likely: ' 
+            call displayMatrix(answer, size(answer), 1)
+            deallocate(answer)
 
             case('E') ! trivial case
             allocate(A(10,20))
@@ -109,8 +134,11 @@ program affineScaling
                             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[20,1])
                 xk = reshape([.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, &
                               .5, .5, .5, .5, .5, .5, .5, .5, .5, .5],[20,1])
+            write(*,*) ''
+            write(*,*) 'We do not know the answer to this case, this is to test a large trivial case.'
 
         case default ! if input is not valid, retry
+            write(*,*) ''
             write(*,*) 'Please enter a valid test case selection.'
             write(*,'(a)', advance = 'no') 'Please enter a test case as "A", "B", "C", "D", or "E":     '
             read(*,*, iostat=stat) testChoice
@@ -118,8 +146,10 @@ program affineScaling
 
     end select
     
+    write(*,*) ''
     write(*,'(a)', advance = 'no') 'Please enter a step size between 0 and 1:   '
     read(*,*, iostat=stat) stepSize
+    write(*,*) ''
     
     do while ((stat .ne. 0) .or. (stepSize <= 0) .or. (stepSize >= 1))      
         write(*,*) 'Please input a number from 0 to 1 exclusive. Retry.'
