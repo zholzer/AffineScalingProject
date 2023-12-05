@@ -13,36 +13,31 @@ program affineScaling
     write(*,*) ''
     write(*,*) 'Welcome to the Affine Scaling Program.'
     write(*,*) ''
-    write(*,*) 'Case "A" solves the problem: '
+    write(*,*) 'Case "Z" solves the problem: '
     write(*,*) 'Minimize -2x_1 + x_2'
     write(*,*) 'Subject to conditions x_1 - x_2 <= 15, x_2 <= 15, and {x_1, x_2} >= 0'
 
     write(*,*) ''
-    write(*,*) 'Case "B" solves the problem: '
-    write(*,*) 'Minimize -x_1 - x_2 + x_3 + x_4'
-    write(*,*) 'Subject to conditions x_1 + x_3 = 1, x_2 + x_4 = 2, and {x_1, x_2, x_3, x_4} >= 0'
-
-    write(*,*) ''
-    write(*,*) 'Case "C" solves the problem: '
+    write(*,*) 'Case "E" solves the problem: '
     write(*,*) 'Minimize x_1 - 2x_2'
     write(*,*) 'Subject to conditions x_1 + x_2 <= 40, 2x_1 + x_2 <= 60, and {x_1, x_2} >= 0'
 
     write(*,*) ''
-    write(*,*) 'Case "D" solves the problem: '
+    write(*,*) 'Case "L" solves the problem: '
     write(*,*) 'Minimize -x_1 - x_2'
     write(*,*) 'Subject to conditions x_1 + 2x_2 <= 3, 2x_1 + x_2 <= 3, and {x_1, x_2} >= 0'
 
     write(*,*) ''
-    write(*,*) 'Case "E" solves the problem: '
+    write(*,*) 'Case "M" solves the problem: '
     write(*,*) 'Minimize x_1 + ... + x_{n-2} - x_{n-1}'
     write(*,*) 'Subject to conditions x_i <= i and x_i >= 0 for i = {1,...,10}'
 
     write(*,*) ''
-    write(*,'(a)', advance = 'no') 'Please enter a test case as "A", "B", "C", "D", or "E":     '
+    write(*,'(a)', advance = 'no') 'Please enter a test case as "Z", "E", "L", or "M":     '
     read(*,*, iostat=stat) testChoice
 
  1   select case (testChoice) ! switches with user input
-        case ('A')
+        case ('Z')
             allocate(A(2,4)) ! allocate space depending on choice
             allocate(b(1,2))
             allocate(c(4,1))
@@ -59,26 +54,8 @@ program affineScaling
             write(*,*) 'The answer to case ', testChoice, ' is: ' 
             call displayMatrix(answer, size(answer), 1)
             deallocate(answer)
-
-        case ('B')
-            allocate(A(2,4))
-            allocate(b(1,2))
-            allocate(c(4,1))
-            allocate(xk(4,1))
-            A = reshape([1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0], [2, 4]) 
-            b = reshape([1.0, 2.0], [1,2])
-            c = reshape([-1.0, -1.0, 1.0, 1.0],[4,1])
-            xk = reshape([0.9, 1.9, 0.1, 0.1],[4,1])
-
-        ! reference https://homepages.rpi.edu/~mitchj/handouts/interior_html/interior.html
-            allocate(answer(4,1))
-            answer = reshape([1.0, 2.0, 0.0, 0.0], [4,1])
-            write(*,*) ''
-            write(*,*) 'The answer to case ', testChoice, ' is: ' 
-            call displayMatrix(answer, size(answer), 1)
-            deallocate(answer)
         
-        case ('C')
+        case ('E')
             allocate(A(2,4))
             allocate(b(1,2))
             allocate(c(4,1))
@@ -96,7 +73,7 @@ program affineScaling
             call displayMatrix(answer, size(answer), 1)
             deallocate(answer)
 
-        case ('D')
+        case ('L')
             allocate(A(2,4))
             allocate(b(1,2))
             allocate(c(4,1))
@@ -114,7 +91,7 @@ program affineScaling
             call displayMatrix(answer, size(answer), 1)
             deallocate(answer)
 
-            case('E') ! trivial case
+            case('M') ! trivial case
             allocate(A(10,20))
             allocate(b(1,10))
             allocate(c(20,1))
@@ -141,7 +118,7 @@ program affineScaling
         case default ! if input is not valid, retry
             write(*,*) ''
             write(*,*) 'Please enter a valid test case selection.'
-            write(*,'(a)', advance = 'no') 'Please enter a test case as "A", "B", "C", "D", or "E":     '
+            write(*,'(a)', advance = 'no') 'Please enter a test case as "Z", "E", "L", or "M":     '
             read(*,*, iostat=stat) testChoice
             go to 1 ! do not pass go! go back and try the switch case again
 
