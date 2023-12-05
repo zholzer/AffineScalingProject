@@ -9,6 +9,7 @@ program affineScaling
     character :: testChoice
 
     ! using 7.1 from https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2019/10/chapter7.pdf
+    ! introduce test cases
     write(*,*) ''
     write(*,*) 'Welcome to the Affine Scaling Program.'
     write(*,*) ''
