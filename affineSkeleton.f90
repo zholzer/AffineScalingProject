@@ -45,7 +45,7 @@ program affineScaling
             A = reshape([1.0, 1.0, 1.0, 0.0, 2.0, 1.0, 0.0, 1.0], [2, 4]) 
             b = reshape([40.0, 60.0], [1,2])
             c = reshape([1.0, -2.0, 0.0, 0.0],[4,1])
-            xk = reshape([20.0, 10.0, 10.0, 10.0],[4,1])
+            xk = reshape([8.0, 30.0, 2.0, 14.0],[4,1])
             !Answer is (0 40 0 20) maybe?
         !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
 
@@ -58,7 +58,9 @@ program affineScaling
             b = reshape([3.0, 3.0], [2,1])
             c = reshape([-1.0, -1.0, 0.0, 0.0],[4,1])
             xk = reshape([0.9, 0.9, 0.3, 0.3],[4,1])
-        !    https://www.ise.ncsu.edu/fuzzy-neural/wp-content/uploads/sites/9/2021/10/Lecture-6.pdf
+                 ! answer is? (1 1 ? ?), beta = .5
+            ! getting (2.7 2.7 0 0)???
+        ! reference https://juliabook.chkwon.net/book/interior
 
         case ('E')
             allocate(A(10,10))
@@ -78,7 +80,7 @@ program affineScaling
                 [10, 10]) 
                 b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1,10])
                 c = reshape([1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[10,1])
-                xk = reshape([1.0, .4, .2, .1, .1, .1, .1, .05, .05, .01],[10,1]) 
+                xk = reshape([1.0, 1.0/2.0, 1.0/3.0, 1.0/4.0, 1.0/5.0, 1.0/6.0, 1.0/7.0, 1.0/8.0, 1.0/9.0, 1.0/10.0],[10,1])
             ! answer is (1 0 ... 0), telescoping
 
 
@@ -101,30 +103,6 @@ program affineScaling
             b = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [1,10])
             c = reshape([1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0],[10,1])
             xk = reshape([1, 1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10],[10,1])
-
-        case ('G')
-            allocate(A(3,3))
-            allocate(b(1,3))
-            allocate(c(3,1))
-            allocate(xk(3,1))
-            A = reshape([1.0, 4.0, 1.0, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0], [3, 3]) 
-            b = reshape([24.0, 21.0, 9.0], [1,3])
-            c = reshape([2.0, 5.0, 0.0],[3,1])
-            xk = reshape([6.0, 1.0, 0.0],[3,1])
-            ! Cannot do this cause the orginal problem is less than or equal
-        ! https://www.cuemath.com/algebra/linear-programming/
-        
-        case ('H')
-            allocate(A(2,3))
-            allocate(b(1,2))
-            allocate(c(2,1))
-            allocate(xk(3,1))
-            A = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 0.0], [2, 3]) 
-            b = reshape([2.0, 1.0], [1,2])
-            c = reshape([-3.0, -1.0, 0.0],[3,1])
-            xk = reshape([1.0, 0.4, 1.0],[3,1])
-            ! ! Cannot do this cause the orginal problem is less than or equal 
-        !   https://www.youtube.com/watch?v=ZU1kpRE84U0
 
         case default
             write(*,*) 'Please enter a valid test case selection.'
@@ -179,7 +157,7 @@ program affineScaling
 
         temp = MATMUL(oneVec,MATMUL(D,r))
         
-        if ((posR .and. (temp(1,1)) < tolerance)) then ! doesnt work
+        if ((posR .and. (temp(1,1)) < tolerance)) then 
             write(*, *) 'Primal optimal value: ', xk 
             call cpu_time(finish)
             write(*,*) 'Code took ', finish - start, 'seconds with ', i, ' iterations.'
@@ -209,10 +187,10 @@ program affineScaling
         end do
        
         ! Step 4: Check for unbounded and constant objective value
-        !if (posdk) then 
-            !write(*,*)"This problem is unbounded"
-            !stop
-         if (zerodk) then 
+        if (posdk) then 
+            write(*,*)"This problem is unbounded"
+            stop
+        else if (zerodk) then 
             write(*,*)"Primal Optimal value: ",xk
             call cpu_time(finish)
             write(*,*) 'Code took ', finish - start, 'seconds with ', i, ' iterations.'
@@ -282,11 +260,11 @@ program affineScaling
             implicit none
             real, dimension(:,:), intent(inout) :: xk, dk
             real, intent(in) :: stepSize
-            real :: beta
+            real :: mu
             real, dimension(:,:), intent(in) :: D
 
-            beta = stepSize/maxval(-dk)
-            xk = xk + beta*MATMUL(D,dk)
+            mu = stepSize/maxval(-dk)
+            xk = xk + mu*MATMUL(D,dk)
             !write(*,*) beta
             !xk = xk - stepSize*MATMUL(D**2,dk)/norm2(MATMUL(D,dk))
 
